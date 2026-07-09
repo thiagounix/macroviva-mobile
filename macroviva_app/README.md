@@ -9,7 +9,7 @@ Aplicativo Flutter do MacroViva. A fundacao mobile usa Riverpod, go_router e Dio
 - Dio
 - Riverpod
 - go_router
-- camera e image_picker preparados para etapa futura
+- image_picker
 
 ## Backend local
 
@@ -36,6 +36,12 @@ Windows/Desktop:
 
 ```powershell
 flutter run --dart-define=API_BASE_URL=http://localhost:5169
+```
+
+Chrome/Web:
+
+```powershell
+flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:5169
 ```
 
 Android Emulator:
@@ -68,8 +74,12 @@ Nesta etapa o app consome a API REST local para:
 - `GET /api/meals/today`
 - `POST /api/meals`
 - `POST /api/user-supplements/check-in`
+- `POST /api/ai/meal-photo/analyze`
+- `POST /api/ai/meal-photo/{analysisId}/confirm`
 
 `POST /api/meals` envia `mealType` como string, por exemplo `"Lunch"`, e cada item contem apenas `foodId` e `grams`, conforme o contrato atual do backend.
+
+O fluxo de foto usa IA mock do backend com `MockMealVisionAnalyzer`. O resultado pode nao corresponder a imagem real; a IA real sera uma etapa futura. O app envia `multipart/form-data` com campo `file` e `mealType` como `"Lunch"`, exibe os itens detectados, exige escolha de `selectedFoodId` real e confirma usando o `analysisItemId` retornado pela analise. O estado da tela de resultado e temporario via navegacao; no MVP, refresh do navegador durante a revisao pode perder a analise em memoria.
 
 ## Escopo atual
 
@@ -84,6 +94,7 @@ Incluido nesta etapa:
 - lista de alimentos usando `GET /api/foods`;
 - lista de suplementos e check-in;
 - criacao manual de refeicao;
+- analise mock de foto de refeicao com revisao antes de confirmar;
 - teste basico de renderizacao.
 
 Fora desta etapa:
@@ -91,7 +102,4 @@ Fora desta etapa:
 - autenticacao real;
 - pagamentos;
 - chamada direta a OpenAI;
-- camera/upload completo;
-- analise de foto por IA;
-- autenticacao real;
-- pagamentos.
+- OpenAI real.

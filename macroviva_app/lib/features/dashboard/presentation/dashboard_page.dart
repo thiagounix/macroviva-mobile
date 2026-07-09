@@ -61,8 +61,14 @@ class DashboardPage extends ConsumerWidget {
               const SizedBox(height: 12),
               _NavigationButton(
                 icon: Icons.add_circle_outline,
-                label: 'Nova refeicao',
+                label: 'Nova refeição',
                 onPressed: () => context.go('/meals/new'),
+              ),
+              const SizedBox(height: 12),
+              _NavigationButton(
+                icon: Icons.photo_camera_outlined,
+                label: 'Analisar foto',
+                onPressed: () => context.go('/meal-photo'),
               ),
               const SizedBox(height: 12),
               _NavigationButton(
@@ -141,7 +147,7 @@ class _ApiStatusCard extends ConsumerWidget {
                 }
               },
               icon: const Icon(Icons.network_check),
-              label: const Text('Testar conexao'),
+              label: const Text('Testar conexão'),
             ),
           ],
         ),
@@ -221,7 +227,7 @@ class _MealTile extends StatelessWidget {
     return Card(
       child: ListTile(
         leading: const Icon(Icons.restaurant),
-        title: Text(meal.mealType.isEmpty ? 'Refeicao' : meal.mealType),
+        title: Text(meal.mealType.isEmpty ? 'Refeição' : meal.mealType),
         subtitle: Text(
           '${meal.items.length} itens - ${meal.totalMacronutrients.calories.toStringAsFixed(0)} kcal',
         ),
@@ -238,7 +244,7 @@ class _EmptyMeals extends StatelessWidget {
     return const Card(
       child: Padding(
         padding: EdgeInsets.all(16),
-        child: Text('Nenhuma refeicao registrada hoje.'),
+        child: Text('Nenhuma refeição registrada hoje.'),
       ),
     );
   }
