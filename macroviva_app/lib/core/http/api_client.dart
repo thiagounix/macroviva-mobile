@@ -54,18 +54,18 @@ class ApiClient {
     if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout ||
         error.type == DioExceptionType.sendTimeout) {
-      return const ApiException(message: 'Tempo de conexao esgotado.');
+      return const ApiException(message: 'Tempo de conexão esgotado.');
     }
 
     if (error.type == DioExceptionType.connectionError) {
       return const ApiException(
-        message: 'Nao foi possivel conectar a API local.',
+        message: 'Não foi possível conectar a API local.',
       );
     }
 
     if (statusCode == 400) {
       return ApiException(
-        message: _readProblemMessage(error.response?.data, 'Dados invalidos.'),
+        message: _readProblemMessage(error.response?.data, 'Dados inválidos.'),
         statusCode: statusCode,
       );
     }
@@ -74,7 +74,7 @@ class ApiClient {
       return ApiException(
         message: _readProblemMessage(
           error.response?.data,
-          'Recurso nao encontrado.',
+          'Recurso não encontrado.',
         ),
         statusCode: statusCode,
       );

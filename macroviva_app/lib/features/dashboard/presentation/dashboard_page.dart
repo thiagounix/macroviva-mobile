@@ -34,47 +34,167 @@ class DashboardPage extends ConsumerWidget {
             ref.invalidate(todayMealsProvider);
             await ref.read(todayMealsProvider.future);
           },
-          child: ListView(
-            padding: const EdgeInsets.all(16),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 760),
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  const _DashboardHeader(),
+                  const SizedBox(height: 16),
+                  _QuickActions(
+                    onFoods: () => context.go('/foods'),
+                    onNewMeal: () => context.go('/meals/new'),
+                    onPhoto: () => context.go('/meal-photo'),
+                    onSupplements: () => context.go('/supplements'),
+                  ),
+                  const SizedBox(height: 20),
+                  todayMeals.when(
+                    loading: () => const SizedBox(
+                      height: 220,
+                      child: AppLoadingView(message: 'Carregando refeições...'),
+                    ),
+                    error: (error, stackTrace) => AppErrorView(
+                      message: error.toString(),
+                      onRetry: () => ref.invalidate(todayMealsProvider),
+                    ),
+                    data: (meals) => _DashboardContent(meals: meals),
+                  ),
+                  const SizedBox(height: 20),
+                  _ApiStatusCard(baseUrl: config.apiBaseUrl),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DashboardHeader extends StatelessWidget {
+  const _DashboardHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Hoje',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Acompanhe seus macros, registre refeições e revise sugestões antes de salvar.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _QuickActions extends StatelessWidget {
+  const _QuickActions({
+    required this.onFoods,
+    required this.onNewMeal,
+    required this.onPhoto,
+    required this.onSupplements,
+  });
+
+  final VoidCallback onFoods;
+  final VoidCallback onNewMeal;
+  final VoidCallback onPhoto;
+  final VoidCallback onSupplements;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Ações rápidas', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 12),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 560;
+
+            return GridView.count(
+              crossAxisCount: isWide ? 4 : 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: isWide ? 1.25 : 1.55,
+              children: [
+                _ActionCard(
+                  icon: Icons.photo_camera_outlined,
+                  label: 'Analisar foto',
+                  onTap: onPhoto,
+                ),
+                _ActionCard(
+                  icon: Icons.add_circle_outline,
+                  label: 'Nova refeição',
+                  onTap: onNewMeal,
+                ),
+                _ActionCard(
+                  icon: Icons.restaurant_menu,
+                  label: 'Alimentos',
+                  onTap: onFoods,
+                ),
+                _ActionCard(
+                  icon: Icons.fitness_center,
+                  label: 'Suplementos',
+                  onTap: onSupplements,
+                ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionCard extends StatelessWidget {
+  const _ActionCard({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _ApiStatusCard(baseUrl: config.apiBaseUrl),
-              const SizedBox(height: 16),
-              Text('Hoje', style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 12),
-              todayMeals.when(
-                loading: () => const SizedBox(
-                  height: 220,
-                  child: AppLoadingView(message: 'Carregando refeicoes...'),
-                ),
-                error: (error, stackTrace) => AppErrorView(
-                  message: error.toString(),
-                  onRetry: () => ref.invalidate(todayMealsProvider),
-                ),
-                data: (meals) => _DashboardContent(meals: meals),
-              ),
-              const SizedBox(height: 16),
-              _NavigationButton(
-                icon: Icons.restaurant_menu,
-                label: 'Alimentos',
-                onPressed: () => context.go('/foods'),
-              ),
-              const SizedBox(height: 12),
-              _NavigationButton(
-                icon: Icons.add_circle_outline,
-                label: 'Nova refeição',
-                onPressed: () => context.go('/meals/new'),
-              ),
-              const SizedBox(height: 12),
-              _NavigationButton(
-                icon: Icons.photo_camera_outlined,
-                label: 'Analisar foto',
-                onPressed: () => context.go('/meal-photo'),
-              ),
-              const SizedBox(height: 12),
-              _NavigationButton(
-                icon: Icons.fitness_center,
-                label: 'Suplementos',
-                onPressed: () => context.go('/supplements'),
+              Icon(icon, color: Theme.of(context).colorScheme.primary),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.titleSmall,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -100,7 +220,12 @@ class _DashboardContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _MacroSummary(total: total),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
+        Text(
+          'Refeições de hoje',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 12),
         if (meals.isEmpty)
           const _EmptyMeals()
         else
@@ -163,38 +288,53 @@ class _MacroSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 1.8,
-      children: [
-        _MetricTile(
-          label: 'Calorias',
-          value: '${total.calories.toStringAsFixed(0)} kcal',
-        ),
-        _MetricTile(
-          label: 'Proteina',
-          value: '${total.proteinGrams.toStringAsFixed(1)} g',
-        ),
-        _MetricTile(
-          label: 'Carboidratos',
-          value: '${total.carbohydrateGrams.toStringAsFixed(1)} g',
-        ),
-        _MetricTile(
-          label: 'Gorduras',
-          value: '${total.fatGrams.toStringAsFixed(1)} g',
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 560;
+
+        return GridView.count(
+          crossAxisCount: isWide ? 4 : 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: isWide ? 1.35 : 1.45,
+          children: [
+            _MetricTile(
+              icon: Icons.local_fire_department_outlined,
+              label: 'Calorias',
+              value: '${total.calories.toStringAsFixed(0)} kcal',
+            ),
+            _MetricTile(
+              icon: Icons.fitness_center,
+              label: 'Proteína',
+              value: '${total.proteinGrams.toStringAsFixed(1)} g',
+            ),
+            _MetricTile(
+              icon: Icons.grain,
+              label: 'Carboidratos',
+              value: '${total.carbohydrateGrams.toStringAsFixed(1)} g',
+            ),
+            _MetricTile(
+              icon: Icons.water_drop_outlined,
+              label: 'Gorduras',
+              value: '${total.fatGrams.toStringAsFixed(1)} g',
+            ),
+          ],
+        );
+      },
     );
   }
 }
 
 class _MetricTile extends StatelessWidget {
-  const _MetricTile({required this.label, required this.value});
+  const _MetricTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
+  final IconData icon;
   final String label;
   final String value;
 
@@ -205,11 +345,16 @@ class _MetricTile extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            Icon(icon, color: Theme.of(context).colorScheme.primary),
             Text(label, style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 6),
-            Text(value, style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleLarge,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
       ),
@@ -225,11 +370,44 @@ class _MealTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: ListTile(
-        leading: const Icon(Icons.restaurant),
-        title: Text(meal.mealType.isEmpty ? 'Refeição' : meal.mealType),
-        subtitle: Text(
-          '${meal.items.length} itens - ${meal.totalMacronutrients.calories.toStringAsFixed(0)} kcal',
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+              child: const Icon(Icons.restaurant),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    meal.mealType.isEmpty ? 'Refeição' : meal.mealType,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '${meal.items.length} itens • ${meal.totalMacronutrients.calories.toStringAsFixed(0)} kcal',
+                  ),
+                  if (meal.items.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      meal.items
+                          .take(2)
+                          .map((item) => item.foodName)
+                          .join(', '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -243,30 +421,20 @@ class _EmptyMeals extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Card(
       child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Text('Nenhuma refeição registrada hoje.'),
+        padding: EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.restaurant_menu),
+            SizedBox(height: 12),
+            Text('Nenhuma refeição registrada hoje.'),
+            SizedBox(height: 4),
+            Text(
+              'Comece adicionando uma refeição manual ou analisando uma foto.',
+            ),
+          ],
+        ),
       ),
-    );
-  }
-}
-
-class _NavigationButton extends StatelessWidget {
-  const _NavigationButton({
-    required this.icon,
-    required this.label,
-    required this.onPressed,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon),
-      label: Text(label),
     );
   }
 }

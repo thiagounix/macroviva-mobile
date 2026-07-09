@@ -17,8 +17,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('MacroViva'), findsOneWidget);
-    expect(find.text('API local'), findsOneWidget);
     expect(find.text('Hoje'), findsOneWidget);
     expect(find.text('Calorias'), findsOneWidget);
+    expect(find.text('Ações rápidas'), findsOneWidget);
+    expect(find.text('Analisar foto'), findsOneWidget);
   });
 }

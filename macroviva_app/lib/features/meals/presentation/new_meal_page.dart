@@ -37,7 +37,7 @@ class _NewMealPageState extends ConsumerState<NewMealPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nova refeicao'),
+        title: const Text('Nova refeição'),
         leading: IconButton(
           onPressed: () => context.go('/dashboard'),
           icon: const Icon(Icons.arrow_back),
@@ -57,7 +57,7 @@ class _NewMealPageState extends ConsumerState<NewMealPage> {
                 child: Padding(
                   padding: EdgeInsets.all(24),
                   child: Text(
-                    'Cadastre alimentos no backend antes de criar refeicoes.',
+                    'Cadastre alimentos no backend antes de criar refeições.',
                   ),
                 ),
               );
@@ -67,108 +67,138 @@ class _NewMealPageState extends ConsumerState<NewMealPage> {
 
             return Form(
               key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Text(
-                    'Refeicao manual',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    initialValue: _mealType,
-                    decoration: const InputDecoration(
-                      labelText: 'Tipo da refeicao',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'Breakfast',
-                        child: Text('Cafe da manha'),
-                      ),
-                      DropdownMenuItem(value: 'Lunch', child: Text('Almoco')),
-                      DropdownMenuItem(value: 'Dinner', child: Text('Jantar')),
-                      DropdownMenuItem(value: 'Snack', child: Text('Lanche')),
-                      DropdownMenuItem(
-                        value: 'PreWorkout',
-                        child: Text('Pre-treino'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'PostWorkout',
-                        child: Text('Pos-treino'),
-                      ),
-                      DropdownMenuItem(value: 'Other', child: Text('Outro')),
-                    ],
-                    onChanged: isSaving
-                        ? null
-                        : (value) {
-                            if (value != null) {
-                              setState(() => _mealType = value);
-                            }
-                          },
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<FoodModel>(
-                    initialValue: _selectedFood,
-                    decoration: const InputDecoration(
-                      labelText: 'Alimento',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: items
-                        .map(
-                          (food) => DropdownMenuItem(
-                            value: food,
-                            child: Text(food.name),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 720),
+                  child: ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Refeição manual',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Escolha o alimento, informe a quantidade e salve no seu dia.',
+                              ),
+                            ],
                           ),
-                        )
-                        .toList(),
-                    onChanged: isSaving
-                        ? null
-                        : (value) => setState(() => _selectedFood = value),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _gramsController,
-                    enabled: !isSaving,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: const InputDecoration(
-                      labelText: 'Gramas',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      final grams = _parseGrams(value);
-                      if (grams == null || grams <= 0) {
-                        return 'Informe gramas maiores que zero.';
-                      }
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        initialValue: _mealType,
+                        decoration: const InputDecoration(
+                          labelText: 'Tipo da refeição',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'Breakfast',
+                            child: Text('Café da manhã'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Lunch',
+                            child: Text('Almoço'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Dinner',
+                            child: Text('Jantar'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Snack',
+                            child: Text('Lanche'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'PreWorkout',
+                            child: Text('Pré-treino'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'PostWorkout',
+                            child: Text('Pós-treino'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Other',
+                            child: Text('Outro'),
+                          ),
+                        ],
+                        onChanged: isSaving
+                            ? null
+                            : (value) {
+                                if (value != null) {
+                                  setState(() => _mealType = value);
+                                }
+                              },
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<FoodModel>(
+                        initialValue: _selectedFood,
+                        decoration: const InputDecoration(
+                          labelText: 'Alimento',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: items
+                            .map(
+                              (food) => DropdownMenuItem(
+                                value: food,
+                                child: Text(
+                                  food.name,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: isSaving
+                            ? null
+                            : (value) => setState(() => _selectedFood = value),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _gramsController,
+                        enabled: !isSaving,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: const InputDecoration(
+                          labelText: 'Gramas',
+                          hintText: 'Ex.: 100 ou 100,5',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          final grams = _parseGrams(value);
+                          if (grams == null || grams <= 0) {
+                            return 'Informe gramas maiores que zero.';
+                          }
 
-                      return null;
-                    },
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      FilledButton.icon(
+                        onPressed: isSaving ? null : () => _submit(context),
+                        icon: isSaving
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.save),
+                        label: Text(
+                          isSaving ? 'Salvando...' : 'Salvar refeição',
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  const TextField(
-                    enabled: false,
-                    decoration: InputDecoration(
-                      labelText: 'Descricao da porcao',
-                      helperText:
-                          'Campo visual apenas; o backend atual nao recebe esta informacao.',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  FilledButton.icon(
-                    onPressed: isSaving ? null : () => _submit(context),
-                    icon: isSaving
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.save),
-                    label: Text(isSaving ? 'Salvando...' : 'Salvar refeicao'),
-                  ),
-                ],
+                ),
               ),
             );
           },
@@ -206,12 +236,12 @@ class _NewMealPageState extends ConsumerState<NewMealPage> {
           );
 
       messenger.showSnackBar(
-        const SnackBar(content: Text('Refeicao criada com sucesso.')),
+        const SnackBar(content: Text('Refeição criada com sucesso.')),
       );
       router.go('/dashboard');
     } catch (error) {
       messenger.showSnackBar(
-        SnackBar(content: Text('Falha ao criar refeicao: $error')),
+        SnackBar(content: Text('Falha ao criar refeição: $error')),
       );
     }
   }

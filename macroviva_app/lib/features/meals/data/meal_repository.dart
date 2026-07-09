@@ -25,7 +25,7 @@ class MealRepository {
       rethrow;
     } catch (_) {
       throw const ApiException(
-        message: 'Nao foi possivel ler as refeicoes de hoje.',
+        message: 'Não foi possível ler as refeições de hoje.',
       );
     }
   }
@@ -40,7 +40,7 @@ class MealRepository {
       final body = response.data;
       if (body == null) {
         throw const ApiException(
-          message: 'Refeicao criada, mas a resposta veio vazia.',
+          message: 'Refeição criada, mas a resposta veio vazia.',
         );
       }
 
@@ -48,7 +48,7 @@ class MealRepository {
     } on ApiException {
       rethrow;
     } catch (_) {
-      throw const ApiException(message: 'Nao foi possivel criar a refeicao.');
+      throw const ApiException(message: 'Não foi possível criar a refeição.');
     }
   }
 }

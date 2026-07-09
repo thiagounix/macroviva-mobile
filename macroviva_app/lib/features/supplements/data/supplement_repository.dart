@@ -25,7 +25,7 @@ class SupplementRepository {
       rethrow;
     } catch (_) {
       throw const ApiException(
-        message: 'Nao foi possivel ler a lista de suplementos.',
+        message: 'Não foi possível ler a lista de suplementos.',
       );
     }
   }
@@ -57,7 +57,7 @@ class SupplementRepository {
       rethrow;
     } catch (_) {
       throw const ApiException(
-        message: 'Nao foi possivel registrar o check-in.',
+        message: 'Não foi possível registrar o check-in.',
       );
     }
   }
