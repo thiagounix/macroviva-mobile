@@ -6,6 +6,7 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loading_view.dart';
 import '../application/foods_providers.dart';
 import '../data/food_model.dart';
+import 'widgets/food_portion_chips.dart';
 
 class FoodsPage extends ConsumerStatefulWidget {
   const FoodsPage({super.key});
@@ -60,21 +61,53 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
                   padding: const EdgeInsets.all(16),
                   child: Card(
                     child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.search),
-                          labelText: 'Buscar alimento',
-                          hintText: 'Ex.: arroz, frango, banana',
-                          border: OutlineInputBorder(),
-                        ),
-                        textInputAction: TextInputAction.search,
-                        onSubmitted: (value) {
-                          setState(() => _searchQuery = value.trim());
-                        },
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Busque na base nutricional',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Veja calorias, proteína, carboidratos e gorduras por 100g.',
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: _searchController,
+                            decoration: const InputDecoration(
+                              prefixIcon: Icon(Icons.search),
+                              labelText: 'Buscar alimento',
+                              hintText: 'Ex.: arroz, frango, banana',
+                              border: OutlineInputBorder(),
+                            ),
+                            textInputAction: TextInputAction.search,
+                            onSubmitted: (value) {
+                              setState(() => _searchQuery = value.trim());
+                            },
+                          ),
+                        ],
                       ),
                     ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  child: _FoodBaseNote(
+                    isSearching: _searchQuery.trim().isNotEmpty,
+                    onClear: _searchQuery.trim().isEmpty
+                        ? null
+                        : () {
+                            _searchController.clear();
+                            setState(() => _searchQuery = '');
+                          },
                   ),
                 ),
                 Expanded(
@@ -181,13 +214,81 @@ class _FoodTile extends StatelessWidget {
                 ),
               ],
             ),
+            Builder(
+              builder: (context) {
+                final badges = _badgesFor(food);
+                if (badges.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: badges
+                        .map((badge) => _FoodBadge(label: badge.label))
+                        .toList(),
+                  ),
+                );
+              },
+            ),
             const SizedBox(height: 6),
             Text(
               'Valores por 100g',
               style: Theme.of(context).textTheme.bodySmall,
             ),
+            if (food.portions.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Porções rápidas',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 8),
+              FoodPortionChips(portions: food.portions, enabled: false),
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _FoodBaseNote extends StatelessWidget {
+  const _FoodBaseNote({required this.isSearching, required this.onClear});
+
+  final bool isSearching;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.16)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.fact_check_outlined, color: colorScheme.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              isSearching
+                  ? 'Filtro ativo. Registre, revise e ajuste com base nos alimentos encontrados.'
+                  : 'Acompanhe tendências, não perfeição. Use a base para registrar refeições simples.',
+              style: TextStyle(color: colorScheme.onSurface),
+            ),
+          ),
+          if (onClear != null) ...[
+            const SizedBox(width: 8),
+            TextButton(onPressed: onClear, child: const Text('Limpar')),
+          ],
+        ],
       ),
     );
   }
@@ -206,6 +307,60 @@ class _MacroChip extends StatelessWidget {
       padding: EdgeInsets.zero,
     );
   }
+}
+
+class _FoodBadge extends StatelessWidget {
+  const _FoodBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Chip(
+      avatar: const Icon(Icons.check_circle_outline, size: 16),
+      label: Text(label),
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      backgroundColor: Theme.of(
+        context,
+      ).colorScheme.secondaryContainer.withValues(alpha: 0.72),
+    );
+  }
+}
+
+class _FoodBadgeData {
+  const _FoodBadgeData(this.label);
+
+  final String label;
+}
+
+List<_FoodBadgeData> _badgesFor(FoodModel food) {
+  final category = food.category.toLowerCase();
+  final name = food.name.toLowerCase();
+  final nutrition = food.nutritionPer100g;
+  final badges = <_FoodBadgeData>[];
+
+  if (food.isSupplement) {
+    badges.add(const _FoodBadgeData('Suplemento'));
+  }
+
+  if (nutrition.proteinGrams >= 15) {
+    badges.add(const _FoodBadgeData('Rico em proteína'));
+  }
+
+  if (nutrition.carbohydrateGrams >= 20) {
+    badges.add(const _FoodBadgeData('Fonte de carboidrato'));
+  }
+
+  if (category.contains('fruta') ||
+      category.contains('fruit') ||
+      name.contains('banana') ||
+      name.contains('maçã') ||
+      name.contains('maca')) {
+    badges.add(const _FoodBadgeData('Fruta'));
+  }
+
+  return badges.take(2).toList();
 }
 
 class _EmptyFoods extends StatelessWidget {
@@ -227,7 +382,7 @@ class _EmptyFoods extends StatelessWidget {
                 Text('Nenhum alimento encontrado.'),
                 SizedBox(height: 4),
                 Text(
-                  'Tente outro termo ou confirme se o backend foi populado com seed.',
+                  'Tente outro termo ou volte para registrar uma refeição com a base disponível.',
                   textAlign: TextAlign.center,
                 ),
               ],

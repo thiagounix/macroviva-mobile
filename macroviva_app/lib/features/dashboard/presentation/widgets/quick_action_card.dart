@@ -37,45 +37,63 @@ class QuickActionCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.all(primary ? 14 : 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: primary
-                      ? Colors.white.withValues(alpha: 0.18)
-                      : color.withValues(alpha: 0.16),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: primary ? Colors.white : color),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final compact = constraints.maxHeight < 118;
+            final iconBadge = Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: primary
+                    ? Colors.white.withValues(alpha: 0.18)
+                    : color.withValues(alpha: 0.16),
+                shape: BoxShape.circle,
               ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: textTheme.titleMedium?.copyWith(
-                  color: foreground,
-                  fontWeight: FontWeight.w700,
+              child: Icon(icon, color: primary ? Colors.white : color),
+            );
+            final copy = Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: textTheme.titleMedium?.copyWith(
+                    color: foreground,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  maxLines: compact ? 1 : 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: textTheme.bodySmall?.copyWith(
-                  color: primary
-                      ? Colors.white.withValues(alpha: 0.78)
-                      : colorScheme.onSurfaceVariant,
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: primary
+                        ? Colors.white.withValues(alpha: 0.78)
+                        : colorScheme.onSurfaceVariant,
+                  ),
+                  maxLines: compact ? 1 : 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
+              ],
+            );
+
+            return Padding(
+              padding: EdgeInsets.all(primary ? 14 : 12),
+              child: compact
+                  ? Row(
+                      children: [
+                        iconBadge,
+                        const SizedBox(width: 12),
+                        Expanded(child: copy),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [iconBadge, const SizedBox(height: 12), copy],
+                    ),
+            );
+          },
         ),
       ),
     );

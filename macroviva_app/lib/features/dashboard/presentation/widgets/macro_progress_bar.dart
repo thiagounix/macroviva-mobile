@@ -8,6 +8,7 @@ class MacroProgressBar extends StatelessWidget {
     required this.target,
     required this.color,
     required this.icon,
+    this.helperText,
   });
 
   final String label;
@@ -15,6 +16,7 @@ class MacroProgressBar extends StatelessWidget {
   final double target;
   final Color color;
   final IconData icon;
+  final String? helperText;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +63,7 @@ class MacroProgressBar extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Meta ${target.toStringAsFixed(0)}g',
+            helperText ?? 'Meta ${target.toStringAsFixed(0)}g',
             style: textTheme.bodySmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),

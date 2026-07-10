@@ -44,6 +44,15 @@ class _MealPhotoPageState extends ConsumerState<MealPhotoPage> {
                   'Foto da refeição',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
+                const SizedBox(height: 8),
+                Text(
+                  'A análise por foto ainda é simulada. Para registrar com precisão agora, use a base nutricional.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const _MockPhotoNotice(),
                 const SizedBox(height: 12),
                 _PhotoPreview(photo: _selectedPhoto),
                 const SizedBox(height: 12),
@@ -90,6 +99,14 @@ class _MealPhotoPageState extends ConsumerState<MealPhotoPage> {
                         )
                       : const Icon(Icons.auto_awesome),
                   label: Text(isAnalyzing ? 'Analisando...' : 'Analisar foto'),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: isAnalyzing
+                      ? null
+                      : () => context.go('/meals/new'),
+                  icon: const Icon(Icons.edit_note_outlined),
+                  label: const Text('Prefere registrar pela base?'),
                 ),
               ],
             ),
@@ -183,6 +200,35 @@ class _MealPhotoPageState extends ConsumerState<MealPhotoPage> {
         SnackBar(content: Text('Falha ao analisar foto: $error')),
       );
     }
+  }
+}
+
+class _MockPhotoNotice extends StatelessWidget {
+  const _MockPhotoNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      color: colorScheme.secondaryContainer.withValues(alpha: 0.78),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.info_outline, color: colorScheme.onSecondaryContainer),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Análise simulada para desenvolvimento. A IA real ainda não está ativa.',
+                style: TextStyle(color: colorScheme.onSecondaryContainer),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

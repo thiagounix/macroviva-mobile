@@ -81,6 +81,10 @@ Nesta etapa o app consome a API REST local para:
 
 O fluxo de foto usa IA mock do backend com `MockMealVisionAnalyzer`. O resultado pode não corresponder à imagem real; a IA real será uma etapa futura. O app envia `multipart/form-data` com campo `file` e `mealType` como `"Lunch"`, exibe os itens detectados, exige escolha de `selectedFoodId` real e confirma usando o `analysisItemId` retornado pela análise. O estado da tela de resultado é temporário via navegação; no MVP, refresh do navegador durante a revisão pode perder a análise em memória.
 
+## Nota de produto
+
+A V1 valoriza a base nutricional existente: o usuário pode registrar alimentos, ajustar gramas e acompanhar proteína, calorias e macros sem depender de IA real. Mensagens como "Modo baixa fome" ou "GLP-1 friendly" são informativas e não substituem orientação médica ou nutricional.
+
 ## Escopo atual
 
 Incluido nesta etapa:

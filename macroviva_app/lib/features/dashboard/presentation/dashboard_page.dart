@@ -104,6 +104,8 @@ class _DashboardContent extends StatelessWidget {
           onSupplements: () => context.go('/supplements'),
         ),
         const SizedBox(height: 20),
+        const _ProductStorySection(),
+        const SizedBox(height: 20),
         _MacroSection(total: total),
         const SizedBox(height: 24),
         _MealFeed(periods: periods),
@@ -275,8 +277,129 @@ class _AiNotice extends StatelessWidget {
           color: Theme.of(context).colorScheme.primary,
         ),
         const SizedBox(width: 8),
-        const Expanded(child: Text('A IA sugere, você revisa e confirma.')),
+        const Expanded(
+          child: Text(
+            'A IA pode vir depois. O controle dos seus macros já começa agora.',
+          ),
+        ),
       ],
+    );
+  }
+}
+
+class _ProductStorySection extends StatelessWidget {
+  const _ProductStorySection();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 700;
+        final cards = const [
+          _ProductStoryCard(
+            icon: Icons.inventory_2_outlined,
+            title: 'Base nutricional pronta para usar',
+            body:
+                'Adicione alimentos, ajuste gramas e veja proteína, calorias e macros sem depender de IA.',
+            color: Color(0xFF0F7B63),
+          ),
+          _ProductStoryCard(
+            icon: Icons.monitor_heart_outlined,
+            title: 'Proteína primeiro',
+            body:
+                'Acompanhe quanto falta para sua meta do dia e ajuste suas refeições com mais clareza.',
+            color: Color(0xFF4D6BFF),
+          ),
+          _ProductStoryCard(
+            icon: Icons.spa_outlined,
+            title: 'Modo baixa fome',
+            body:
+                'Para fases de apetite reduzido, como pós-bariátrica ou acompanhamento médico para controle de peso, acompanhe proteína e macros com mais clareza.',
+            footer:
+                'Apoio informativo. Não substitui orientação médica ou nutricional.',
+            color: Color(0xFFFF8A3D),
+          ),
+        ];
+
+        if (!isWide) {
+          return Column(
+            children: cards
+                .map(
+                  (card) => Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: card,
+                  ),
+                )
+                .toList(),
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final card in cards) ...[
+              Expanded(child: card),
+              if (card != cards.last) const SizedBox(width: 12),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ProductStoryCard extends StatelessWidget {
+  const _ProductStoryCard({
+    required this.icon,
+    required this.title,
+    required this.body,
+    required this.color,
+    this.footer,
+  });
+
+  final IconData icon;
+  final String title;
+  final String body;
+  final String? footer;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 18,
+              backgroundColor: color.withValues(alpha: 0.14),
+              foregroundColor: color,
+              child: Icon(icon, size: 19),
+            ),
+            const SizedBox(height: 12),
+            Text(title, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(
+              body,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            if (footer != null) ...[
+              const SizedBox(height: 10),
+              Text(
+                footer!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
@@ -429,6 +552,7 @@ class _MacroSection extends StatelessWidget {
                 target: DashboardTargets.carbsTargetGrams,
                 color: const Color(0xFF4D6BFF),
                 icon: Icons.grain,
+                helperText: 'Energia registrada no dia.',
               ),
               MacroProgressBar(
                 label: 'Gorduras',
@@ -436,6 +560,7 @@ class _MacroSection extends StatelessWidget {
                 target: DashboardTargets.fatsTargetGrams,
                 color: const Color(0xFFFF8A3D),
                 icon: Icons.water_drop_outlined,
+                helperText: 'Completam o equilíbrio dos macros.',
               ),
             ];
 
