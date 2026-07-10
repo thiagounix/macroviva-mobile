@@ -314,9 +314,10 @@ class _ProductStorySection extends StatelessWidget {
             icon: Icons.spa_outlined,
             title: 'Modo baixa fome',
             body:
-                'Para fases de apetite reduzido, como pós-bariátrica ou acompanhamento médico para controle de peso, acompanhe proteína e macros com mais clareza.',
+                'Se você está com menos apetite por uso de canetas/injetáveis prescritos ou após bariátrica, registre refeições simples e acompanhe proteína, calorias e macros.',
             footer:
-                'Apoio informativo. Não substitui orientação médica ou nutricional.',
+                'Apoio de registro nutricional. Não muda conduta médica. Siga seu médico ou nutricionista.',
+            badges: ['GLP-1/GIP prescrito', 'Pós-bariátrica', 'Menos apetite'],
             color: Color(0xFFFF8A3D),
           ),
         ];
@@ -355,12 +356,14 @@ class _ProductStoryCard extends StatelessWidget {
     required this.body,
     required this.color,
     this.footer,
+    this.badges = const [],
   });
 
   final IconData icon;
   final String title;
   final String body;
   final String? footer;
+  final List<String> badges;
   final Color color;
 
   @override
@@ -381,6 +384,24 @@ class _ProductStoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(title, style: Theme.of(context).textTheme.titleMedium),
+            if (badges.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: badges
+                    .map(
+                      (badge) => Chip(
+                        label: Text(badge),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        backgroundColor: color.withValues(alpha: 0.10),
+                        side: BorderSide(color: color.withValues(alpha: 0.24)),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
             const SizedBox(height: 8),
             Text(
               body,
