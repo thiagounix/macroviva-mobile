@@ -27,7 +27,7 @@ class FoodRepository {
       rethrow;
     } catch (_) {
       throw const ApiException(
-        message: 'Nao foi possivel ler a lista de alimentos.',
+        message: 'Não foi possível ler a lista de alimentos.',
       );
     }
   }
@@ -40,14 +40,14 @@ class FoodRepository {
 
       final body = response.data;
       if (body == null) {
-        throw const ApiException(message: 'Alimento nao encontrado.');
+        throw const ApiException(message: 'Alimento não encontrado.');
       }
 
       return FoodModel.fromJson(body);
     } on ApiException {
       rethrow;
     } catch (_) {
-      throw const ApiException(message: 'Nao foi possivel ler o alimento.');
+      throw const ApiException(message: 'Não foi possível ler o alimento.');
     }
   }
 }

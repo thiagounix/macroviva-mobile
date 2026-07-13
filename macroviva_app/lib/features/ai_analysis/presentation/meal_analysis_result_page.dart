@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../foods/application/foods_providers.dart';
 import '../../foods/data/food_model.dart';
+import '../../foods/presentation/widgets/food_portion_chips.dart';
 import '../application/meal_photo_analysis_providers.dart';
 import '../data/analyze_meal_photo_response.dart';
 import '../data/confirm_meal_analysis_request.dart';
@@ -119,7 +120,18 @@ class _MealAnalysisResultPageState
                             foods: foodItems,
                             enabled: !isConfirming,
                             onFoodChanged: (foodId) {
-                              setState(() => item.selectedFoodId = foodId);
+                              setState(() {
+                                item.selectedFoodId = foodId;
+                                item.selectedPortionGrams = null;
+                              });
+                            },
+                            onPortionSelected: (portion) {
+                              setState(() {
+                                item.selectedPortionGrams = portion.grams;
+                                item.gramsController.text = _formatGrams(
+                                  portion.grams,
+                                );
+                              });
                             },
                           ),
                         ),
@@ -247,6 +259,14 @@ class _MealAnalysisResultPageState
     }
 
     return double.tryParse(value.replaceAll(',', '.'));
+  }
+
+  static String _formatGrams(double grams) {
+    if (grams % 1 == 0) {
+      return grams.toStringAsFixed(0);
+    }
+
+    return grams.toStringAsFixed(1);
   }
 }
 
@@ -381,18 +401,23 @@ class _DetectedItemCard extends StatelessWidget {
     required this.foods,
     required this.enabled,
     required this.onFoodChanged,
+    required this.onPortionSelected,
   });
 
   final _EditableDetectedItem item;
   final List<FoodModel> foods;
   final bool enabled;
   final ValueChanged<String?> onFoodChanged;
+  final ValueChanged<FoodPortionModel> onPortionSelected;
 
   @override
   Widget build(BuildContext context) {
     final selectedFoodId = foods.any((food) => food.id == item.selectedFoodId)
         ? item.selectedFoodId
         : null;
+    final selectedFood = foods
+        .where((food) => food.id == selectedFoodId)
+        .firstOrNull;
     final needsCarefulReview = _needsCarefulReview(
       item.detectedItem.confidenceLevel,
     );
@@ -423,9 +448,12 @@ class _DetectedItemCard extends StatelessWidget {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Gramas',
-                border: OutlineInputBorder(),
+                helperText: selectedFood?.portions.isNotEmpty ?? false
+                    ? 'Escolha uma porção rápida ou ajuste manualmente.'
+                    : null,
+                border: const OutlineInputBorder(),
               ),
               validator: (value) {
                 final grams = MealAnalysisResultPageStateHelper.parseGrams(
@@ -438,6 +466,20 @@ class _DetectedItemCard extends StatelessWidget {
                 return null;
               },
             ),
+            if (selectedFood?.portions.isNotEmpty ?? false) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Porção rápida',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 8),
+              FoodPortionChips(
+                portions: selectedFood!.portions,
+                selectedGrams: item.selectedPortionGrams,
+                enabled: enabled,
+                onSelected: onPortionSelected,
+              ),
+            ],
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: selectedFoodId,
@@ -556,6 +598,7 @@ class _EditableDetectedItem {
   final DetectedMealItemModel detectedItem;
   final TextEditingController gramsController;
   String? selectedFoodId;
+  double? selectedPortionGrams;
 
   void dispose() {
     gramsController.dispose();

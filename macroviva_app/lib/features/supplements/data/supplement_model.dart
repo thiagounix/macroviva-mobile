@@ -8,6 +8,10 @@ class SupplementModel {
     required this.type,
     required this.macronutrientsPerServing,
     required this.impactsMacronutrients,
+    required this.description,
+    required this.safetyNote,
+    required this.requiresProfessionalGuidance,
+    required this.hasStimulantWarning,
   });
 
   factory SupplementModel.fromJson(Map<String, dynamic> json) {
@@ -20,6 +24,11 @@ class SupplementModel {
         json['macronutrientsPerServing'] as Map<String, dynamic>?,
       ),
       impactsMacronutrients: json['impactsMacronutrients'] as bool? ?? false,
+      description: json['description'] as String? ?? '',
+      safetyNote: json['safetyNote'] as String? ?? '',
+      requiresProfessionalGuidance:
+          json['requiresProfessionalGuidance'] as bool? ?? true,
+      hasStimulantWarning: json['hasStimulantWarning'] as bool? ?? false,
     );
   }
 
@@ -29,4 +38,8 @@ class SupplementModel {
   final String type;
   final MacronutrientsModel macronutrientsPerServing;
   final bool impactsMacronutrients;
+  final String description;
+  final String safetyNote;
+  final bool requiresProfessionalGuidance;
+  final bool hasStimulantWarning;
 }
