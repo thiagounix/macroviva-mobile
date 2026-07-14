@@ -3,18 +3,29 @@ import 'package:flutter/foundation.dart';
 
 import '../config/app_config.dart';
 import '../errors/api_exception.dart';
+import '../identity/installation_identity_service.dart';
+import 'tester_identity_interceptor.dart';
 
 class ApiClient {
-  ApiClient(AppConfig config)
-    : _dio = Dio(
-        BaseOptions(
-          baseUrl: config.apiBaseUrl,
-          connectTimeout: const Duration(seconds: 10),
-          receiveTimeout: const Duration(seconds: 20),
-          sendTimeout: const Duration(seconds: 20),
-          headers: const {'Accept': 'application/json'},
-        ),
-      ) {
+  ApiClient(
+    AppConfig config,
+    InstallationIdentityService installationIdentityService, {
+    Dio? dio,
+  }) : _dio =
+           dio ??
+           Dio(
+             BaseOptions(
+               baseUrl: config.apiBaseUrl,
+               connectTimeout: const Duration(seconds: 10),
+               receiveTimeout: const Duration(seconds: 20),
+               sendTimeout: const Duration(seconds: 20),
+               headers: const {'Accept': 'application/json'},
+             ),
+           ) {
+    _dio.interceptors.add(
+      TesterIdentityInterceptor(installationIdentityService),
+    );
+
     if (kDebugMode) {
       _dio.interceptors.add(
         LogInterceptor(

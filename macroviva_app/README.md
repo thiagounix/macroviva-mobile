@@ -81,6 +81,14 @@ Nesta etapa o app consome a API REST local para:
 
 O fluxo de foto usa IA mock do backend com `MockMealVisionAnalyzer`. O resultado pode não corresponder à imagem real; a IA real será uma etapa futura. O app envia `multipart/form-data` com campo `file` e `mealType` como `"Lunch"`, exibe os itens detectados, exige escolha de `selectedFoodId` real e confirma usando o `analysisItemId` retornado pela análise. O estado da tela de resultado é temporário via navegação; no MVP, refresh do navegador durante a revisão pode perder a análise em memória.
 
+## Identidade anonima do beta privado
+
+Em Staging, o app gera um UUID v4 anonimo por instalacao, persiste-o localmente
+e o envia no header `X-MacroViva-Tester-Id`. Ele separa os registros de testers
+sem coletar nome, e-mail ou telefone. Reinstalar o app ou limpar os dados do
+site/dispositivo cria uma nova identidade e nao representa uma conta de usuario
+nem autenticacao real.
+
 ## Nota de produto
 
 A V1 valoriza a base nutricional existente: o usuário pode registrar alimentos, ajustar gramas e acompanhar proteína, calorias e macros sem depender de IA real. Mensagens como "Modo baixa fome" ou "GLP-1 friendly" são informativas e não substituem orientação médica ou nutricional.
