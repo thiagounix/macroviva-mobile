@@ -58,6 +58,8 @@ class DashboardPage extends ConsumerWidget {
                     data: (meals) => _DashboardContent(
                       meals: meals,
                       apiBaseUrl: config.apiBaseUrl,
+                      showDebugTools: config.showDebugToolsEnabled,
+                      enableMockPhotoAnalysis: config.mockPhotoAnalysisEnabled,
                     ),
                   ),
                 ],
@@ -71,10 +73,17 @@ class DashboardPage extends ConsumerWidget {
 }
 
 class _DashboardContent extends StatelessWidget {
-  const _DashboardContent({required this.meals, required this.apiBaseUrl});
+  const _DashboardContent({
+    required this.meals,
+    required this.apiBaseUrl,
+    required this.showDebugTools,
+    required this.enableMockPhotoAnalysis,
+  });
 
   final List<MealModel> meals;
   final String apiBaseUrl;
+  final bool showDebugTools;
+  final bool enableMockPhotoAnalysis;
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +108,7 @@ class _DashboardContent extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         _QuickActions(
+          showPhotoAction: enableMockPhotoAnalysis,
           onPhoto: () => context.go('/meal-photo'),
           onNewMeal: () => context.go('/meals/new'),
           onSupplements: () => context.go('/supplements'),
@@ -109,8 +119,10 @@ class _DashboardContent extends StatelessWidget {
         _MacroSection(total: total),
         const SizedBox(height: 24),
         _MealFeed(periods: periods),
-        const SizedBox(height: 20),
-        _ApiStatusCard(baseUrl: apiBaseUrl),
+        if (showDebugTools) ...[
+          const SizedBox(height: 20),
+          _ApiStatusCard(baseUrl: apiBaseUrl),
+        ],
       ],
     );
   }
@@ -157,7 +169,7 @@ class _HeroPanel extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Olá, Thiago',
+                  'Olá!',
                   style: textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: colorScheme.onSurface,
@@ -492,11 +504,13 @@ class _CaloriesCard extends StatelessWidget {
 
 class _QuickActions extends StatelessWidget {
   const _QuickActions({
+    required this.showPhotoAction,
     required this.onPhoto,
     required this.onNewMeal,
     required this.onSupplements,
   });
 
+  final bool showPhotoAction;
   final VoidCallback onPhoto;
   final VoidCallback onNewMeal;
   final VoidCallback onSupplements;
@@ -511,38 +525,48 @@ class _QuickActions extends StatelessWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             final isWide = constraints.maxWidth >= 700;
-
-            return GridView.count(
-              crossAxisCount: isWide ? 3 : 1,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: isWide ? 1.2 : 3.1,
-              children: [
+            final actions = <Widget>[
+              if (showPhotoAction)
                 QuickActionCard(
                   icon: Icons.photo_camera_outlined,
                   title: 'Foto da refeição',
-                  subtitle: 'Análise rápida por imagem',
+                  subtitle:
+                      'Fluxo de demonstração — IA real ainda não está ativa',
+                  badge: 'Simulação',
                   color: const Color(0xFF0F7B63),
                   primary: true,
                   onTap: onPhoto,
                 ),
-                QuickActionCard(
-                  icon: Icons.add_circle_outline,
-                  title: 'Adicionar manual',
-                  subtitle: 'Controle fino quando precisar',
-                  color: const Color(0xFF4D6BFF),
-                  onTap: onNewMeal,
-                ),
-                QuickActionCard(
-                  icon: Icons.fitness_center,
-                  title: 'Suplemento',
-                  subtitle: 'Check-in simples do dia',
-                  color: const Color(0xFFFF8A3D),
-                  onTap: onSupplements,
-                ),
-              ],
+              QuickActionCard(
+                icon: Icons.add_circle_outline,
+                title: 'Adicionar manual',
+                subtitle: 'Controle fino quando precisar',
+                color: const Color(0xFF4D6BFF),
+                onTap: onNewMeal,
+              ),
+              QuickActionCard(
+                icon: Icons.fitness_center,
+                title: 'Suplemento',
+                subtitle: 'Check-in simples do dia',
+                color: const Color(0xFFFF8A3D),
+                onTap: onSupplements,
+              ),
+            ];
+
+            return GridView.count(
+              crossAxisCount: isWide ? actions.length : 1,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: isWide
+                  ? showPhotoAction
+                        ? 1.7
+                        : 3.1
+                  : showPhotoAction
+                  ? 2.2
+                  : 3.1,
+              children: actions,
             );
           },
         ),

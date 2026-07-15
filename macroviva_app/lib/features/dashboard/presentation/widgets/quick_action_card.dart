@@ -9,6 +9,7 @@ class QuickActionCard extends StatelessWidget {
     required this.color,
     required this.onTap,
     this.primary = false,
+    this.badge,
   });
 
   final IconData icon;
@@ -17,6 +18,7 @@ class QuickActionCard extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
   final bool primary;
+  final String? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,7 @@ class QuickActionCard extends StatelessWidget {
         onTap: onTap,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final compact = constraints.maxHeight < 118;
+            final compact = constraints.maxHeight < 180;
             final iconBadge = Container(
               width: 36,
               height: 36,
@@ -64,6 +66,28 @@ class QuickActionCard extends StatelessWidget {
                   maxLines: compact ? 1 : 2,
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (badge != null) ...[
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: primary
+                          ? Colors.white.withValues(alpha: 0.18)
+                          : color.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      badge!,
+                      style: textTheme.labelSmall?.copyWith(
+                        color: primary ? Colors.white : color,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
@@ -72,7 +96,7 @@ class QuickActionCard extends StatelessWidget {
                         ? Colors.white.withValues(alpha: 0.78)
                         : colorScheme.onSurfaceVariant,
                   ),
-                  maxLines: compact ? 1 : 2,
+                  maxLines: badge != null ? 3 : (compact ? 1 : 2),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
